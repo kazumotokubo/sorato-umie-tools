@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SORATO UMIE 処遇改善加算アプリ</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --surface-alt: #f0f2f5;
+    --border: #e2e5ea;
+    --border-focus: #4a7cff;
+    --text: #1a1d23;
+    --text-sub: #5f6673;
+    --text-muted: #9199a6;
+    --accent: #4a7cff;
+    --accent-light: #edf1ff;
+    --success: #22a867;
+    --success-light: #eaf7f0;
+    --danger: #e5453d;
+    --danger-light: #fef0ef;
+    --warning: #f0a020;
+    --warning-light: #fff8eb;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  .app-header {
+    background: linear-gradient(135deg, #2d3a8c 0%, #4a7cff 100%);
+    color: #fff;
+    padding: 28px 0;
+    box-shadow: 0 4px 20px rgba(45,58,140,0.2);
+  }
+
+  .app-header .inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .app-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .app-header p {
+    font-size: 13px;
+    opacity: 0.8;
+    margin-top: 4px;
+    font-weight: 300;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title .icon {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .icon-blue { background: var(--accent-light); color: var(--accent); }
+  .icon-green { background: var(--success-light); color: var(--success); }
+
+  .input-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .input-group {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .input-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-sub);
+    margin-bottom: 6px;
+  }
+
+  .file-drop {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--surface-alt);
+  }
+
+  .file-drop:hover, .file-drop.drag-over {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .file-drop .drop-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+
+  .file-drop .drop-text {
+    font-size: 13px;
+    color: var(--text-sub);
+  }
+
+  .file-drop .drop-text strong {
+    color: var(--accent);
+  }
+
+  .file-drop.has-file {
+    border-color: var(--success);
+    background: var(--success-light);
+  }
+
+  .file-drop.has-file .drop-icon { color: var(--success); }
+
+  input[type="number"], input[type="text"] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  input:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(74,124,255,0.1);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 24px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #2d3a8c, #4a7cff);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(74,124,255,0.3);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 4px 16px rgba(74,124,255,0.4);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .btn-outline {
+    background: var(--surface);
+    color: var(--text-sub);
+    border: 1px solid var(--border);
+  }
+
+  .btn-outline:hover {
+    background: var(--surface-alt);
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  /* Results */
+  #results { display: none; }
+  #results.visible { display: block; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .summary-item {
+    background: var(--surface-alt);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+  }
+
+  .summary-item .label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .summary-item .value {
+    font-size: 22px;
+    font-weight: 700;
+    font-family: 'IBM Plex Mono', monospace;
+    margin-top: 4px;
+  }
+
+  .summary-item .sub {
+    font-size: 12px;
+    color: var(--text-sub);
+    margin-top: 2px;
+  }
+
+  .match-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .match-badge.ok {
+    background: var(--success-light);
+    color: var(--success);
+  }
+
+  .match-badge.ng {
+    background: var(--danger-light);
+    color: var(--danger);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead th {
+    background: var(--surface-alt);
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-sub);
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  tbody tr:hover { background: var(--surface-alt); }
+
+  .mono {
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .text-right { text-align: right; }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .tag-jihatsu { background: #e8f0fe; color: #1a56db; }
+  .tag-hodei { background: #fef3e2; color: #c2710c; }
+  .tag-hohou { background: #f0e8fe; color: #7c3aed; }
+
+  .error-msg {
+    background: var(--danger-light);
+    color: var(--danger);
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    margin-top: 12px;
+    display: none;
+  }
+
+  .error-msg.visible { display: block; }
+
+  .footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 600px) {
+    .input-row { flex-direction: column; }
+    .summary-grid { grid-template-columns: 1fr; }
+    .container { padding: 16px; }
+    .app-header { padding: 20px 0; }
+    .app-header h1 { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="inner">
+    <h1>SORATO UMIE 処遇改善加算アプリ</h1>
+    <p>国保連SK形式CSVから対象レコードを抽出・集計します</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Input Section -->
+  <div class="card">
+    <div class="card-title">
+      <span class="icon icon-blue">📂</span>
+      データ入力
+    </div>
+
+    <div class="input-row">
+      <div class="input-group" style="flex:2">
+        <label>CSVファイル（国保連SK形式・Shift-JIS）</label>
+        <div class="file-drop" id="fileDrop" onclick="document.getElementById('csvFile').click()">
+          <div class="drop-icon">📄</div>
+          <div class="drop-text" id="fileLabel">ここにドラッグ＆ドロップ、または<strong>クリックして選択</strong></div>
+        </div>
+        <input type="file" id="csvFile" accept=".csv" style="display:none">
+      </div>
+      <div class="input-group" style="flex:1">
+        <label>合計金額（照合用・手入力）</label>
+        <input type="number" id="inputTotal" placeholder="例: 1234567">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="calcBtn" disabled onclick="calculate()">▶ 集計する</button>
+      <button class="btn btn-outline" onclick="resetAll()">リセット</button>
+    </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+  </div>
+
+  <!-- Results Section -->
+  <div id="results">
+
+    <!-- Summary -->
+    <div class="card">
+      <div class="card-title">
+        <span class="icon icon-green">📊</span>
+        集計結果
+      </div>
+
+      <div class="summary-grid" id="summaryGrid"></div>
+
+      <div id="matchResult" style="margin-top: 12px;"></div>
+    </div>
+
+    <!-- Category Table -->
+    <div class="card">
+      <div class="card-title">
+        <span class="icon icon-blue">📋</span>
+        種別ごとの集計
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>種別</th>
+            <th>サービスコード</th>
+            <th>単価（円/単位）</th>
+            <th class="text-right">合計単位数</th>
+            <th class="text-right">円換算</th>
+          </tr>
+        </thead>
+        <tbody id="categoryBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Detail Table -->
+    <div class="card">
+      <div class="card-title">
+        <span class="icon icon-blue">📝</span>
+        明細リスト
+        <span id="detailCount" style="font-size:12px; font-weight:400; color:var(--text-muted); margin-left:auto;"></span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>対象年月</th>
+              <th>受給者番号</th>
+              <th>種別</th>
+              <th>サービスコード</th>
+              <th class="text-right">単位数</th>
+              <th class="text-right">円換算</th>
+            </tr>
+          </thead>
+          <tbody id="detailBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Export -->
+    <div class="card" style="text-align:center;">
+      <button class="btn btn-outline" onclick="exportCSV()">📥 結果をCSVでダウンロード</button>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    処遇改善加算Ⅰ 月次集計ツール — beatech株式会社 × SORATO UMIE
+  </div>
+</div>
+
+<script>
+// === Configuration ===
+const CODE_CONFIG = {
+  '615621': { name: '児童発達支援', unit_price: 10.18, tag_class: 'tag-jihatsu', short: '児発' },
+  '635621': { name: '放課後等デイサービス', unit_price: 10.18, tag_class: 'tag-hodei', short: '放デイ' },
+  '645621': { name: '保育所等訪問支援', unit_price: 10.19, tag_class: 'tag-hohou', short: '保訪' },
+};
+
+let csvData = null;
+let resultRecords = [];
+
+// === File Handling ===
+const fileDrop = document.getElementById('fileDrop');
+const csvFile = document.getElementById('csvFile');
+const calcBtn = document.getElementById('calcBtn');
+
+csvFile.addEventListener('change', (e) => {
+  if (e.target.files.length > 0) handleFile(e.target.files[0]);
+});
+
+fileDrop.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  fileDrop.classList.add('drag-over');
+});
+
+fileDrop.addEventListener('dragleave', () => {
+  fileDrop.classList.remove('drag-over');
+});
+
+fileDrop.addEventListener('drop', (e) => {
+  e.preventDefault();
+  fileDrop.classList.remove('drag-over');
+  if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+});
+
+function handleFile(file) {
+  if (!file.name.toLowerCase().endsWith('.csv')) {
+    showError('CSVファイルを選択してください。');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const decoder = new TextDecoder('shift-jis');
+    const text = decoder.decode(new Uint8Array(e.target.result));
+    csvData = text;
+    fileDrop.classList.add('has-file');
+    document.getElementById('fileLabel').innerHTML = '✅ <strong>' + escapeHtml(file.name) + '</strong> を読み込みました';
+    calcBtn.disabled = false;
+    hideError();
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// === Calculation ===
+function calculate() {
+  hideError();
+
+  if (!csvData) {
+    showError('CSVファイルを先に読み込んでください。');
+    return;
+  }
+
+  const lines = csvData.split(/\r?\n/).filter(l => l.trim() !== '');
+  resultRecords = [];
+
+  for (const line of lines) {
+    const cols = parseCSVLine(line);
+
+    // Filter: col[2] == "K122" and col[3] == "03"
+    if (cols.length < 12) continue;
+    if (cols[2] !== 'K122') continue;
+    if (cols[3] !== '03') continue;
+
+    const serviceCode = (cols[8] || '').trim();
+
+    // Only codes ending with "5621"
+    if (!serviceCode.endsWith('5621')) continue;
+
+    const config = CODE_CONFIG[serviceCode];
+    if (!config) continue;
+
+    const units = parseInt(cols[11], 10);
+    if (isNaN(units)) continue;
+
+    const yen = Math.floor(units * config.unit_price);
+
+    resultRecords.push({
+      yearMonth: (cols[4] || '').trim(),
+      recipientNo: (cols[7] || '').trim(),
+      serviceCode: serviceCode,
+      typeName: config.name,
+      shortName: config.short,
+      tagClass: config.tag_class,
+      units: units,
+      yen: yen,
+    });
+  }
+
+  if (resultRecords.length === 0) {
+    showError('対象レコードが見つかりませんでした。CSVの形式を確認してください。');
+    return;
+  }
+
+  renderResults();
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"' && i + 1 < line.length && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else if (ch === '"') {
+        inQuotes = false;
+      } else {
+        current += ch;
+      }
+    } else {
+      if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ',') {
+        result.push(current);
+        current = '';
+      } else {
+        current += ch;
+      }
+    }
+  }
+  result.push(current);
+  return result;
+}
+
+// === Rendering ===
+function renderResults() {
+  // Category aggregation
+  const categories = {};
+  for (const r of resultRecords) {
+    if (!categories[r.serviceCode]) {
+      categories[r.serviceCode] = {
+        name: r.typeName,
+        short: r.shortName,
+        tagClass: r.tagClass,
+        unitPrice: CODE_CONFIG[r.serviceCode].unit_price,
+        totalUnits: 0,
+        totalYen: 0,
+      };
+    }
+    categories[r.serviceCode].totalUnits += r.units;
+    categories[r.serviceCode].totalYen += r.yen;
+  }
+
+  const grandTotalYen = Object.values(categories).reduce((s, c) => s + c.totalYen, 0);
+  const grandTotalUnits = Object.values(categories).reduce((s, c) => s + c.totalUnits, 0);
+
+  // Summary grid
+  const summaryGrid = document.getElementById('summaryGrid');
+  summaryGrid.innerHTML = `
+    <div class="summary-item">
+      <div class="label">対象レコード数</div>
+      <div class="value">${resultRecords.length.toLocaleString()}<span style="font-size:13px;font-weight:400;color:var(--text-sub);"> 件</span></div>
+    </div>
+    <div class="summary-item">
+      <div class="label">合計単位数</div>
+      <div class="value">${grandTotalUnits.toLocaleString()}</div>
+    </div>
+    <div class="summary-item">
+      <div class="label">総合計金額</div>
+      <div class="value" style="color:var(--accent);">¥${grandTotalYen.toLocaleString()}</div>
+    </div>
+  `;
+
+  // Match check
+  const inputTotal = parseInt(document.getElementById('inputTotal').value, 10);
+  const matchResult = document.getElementById('matchResult');
+  if (!isNaN(inputTotal)) {
+    const diff = grandTotalYen - inputTotal;
+    if (diff === 0) {
+      matchResult.innerHTML = '<span class="match-badge ok">✓ 一致</span> <span style="font-size:13px;color:var(--text-sub);">計算結果と入力金額が一致しました</span>';
+    } else {
+      matchResult.innerHTML = `<span class="match-badge ng">✗ 不一致</span> <span style="font-size:13px;color:var(--text-sub);">差額: <strong class="mono">${diff > 0 ? '+' : ''}${diff.toLocaleString()}円</strong>（計算結果 ${diff > 0 ? '>' : '<'} 入力金額）</span>`;
+    }
+  } else {
+    matchResult.innerHTML = '<span style="font-size:13px;color:var(--text-muted);">※ 合計金額が未入力のため照合をスキップしました</span>';
+  }
+
+  // Category table
+  const categoryBody = document.getElementById('categoryBody');
+  const codeOrder = ['615621', '635621', '645621'];
+  let catHTML = '';
+  for (const code of codeOrder) {
+    const c = categories[code];
+    if (!c) continue;
+    catHTML += `<tr>
+      <td><span class="tag ${c.tagClass}">${c.name}</span></td>
+      <td class="mono">${code}</td>
+      <td class="mono">${c.unitPrice.toFixed(2)}</td>
+      <td class="text-right mono">${c.totalUnits.toLocaleString()}</td>
+      <td class="text-right mono" style="font-weight:600;">¥${c.totalYen.toLocaleString()}</td>
+    </tr>`;
+  }
+  catHTML += `<tr style="background:var(--surface-alt);font-weight:700;">
+    <td colspan="3">合計</td>
+    <td class="text-right mono">${grandTotalUnits.toLocaleString()}</td>
+    <td class="text-right mono" style="color:var(--accent);">¥${grandTotalYen.toLocaleString()}</td>
+  </tr>`;
+  categoryBody.innerHTML = catHTML;
+
+  // Detail table
+  const detailBody = document.getElementById('detailBody');
+  document.getElementById('detailCount').textContent = `${resultRecords.length}件`;
+  let detailHTML = '';
+  resultRecords.forEach((r, i) => {
+    detailHTML += `<tr>
+      <td class="mono" style="color:var(--text-muted);">${i + 1}</td>
+      <td class="mono">${formatYearMonth(r.yearMonth)}</td>
+      <td class="mono">${r.recipientNo}</td>
+      <td><span class="tag ${r.tagClass}">${r.shortName}</span></td>
+      <td class="mono">${r.serviceCode}</td>
+      <td class="text-right mono">${r.units.toLocaleString()}</td>
+      <td class="text-right mono">¥${r.yen.toLocaleString()}</td>
+    </tr>`;
+  });
+  detailBody.innerHTML = detailHTML;
+
+  // Show results
+  document.getElementById('results').classList.add('visible');
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function formatYearMonth(ym) {
+  if (ym.length === 6) {
+    return ym.substring(0, 4) + '/' + ym.substring(4, 6);
+  }
+  return ym;
+}
+
+// === Export ===
+function exportCSV() {
+  if (resultRecords.length === 0) return;
+
+  let csv = '\ufeff対象年月,受給者番号,種別,サービスコード,単位数,円換算\n';
+  for (const r of resultRecords) {
+    csv += `${r.yearMonth},${r.recipientNo},${r.typeName},${r.serviceCode},${r.units},${r.yen}\n`;
+  }
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '処遇改善加算_集計結果.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// === Utilities ===
+function resetAll() {
+  csvData = null;
+  resultRecords = [];
+  csvFile.value = '';
+  document.getElementById('inputTotal').value = '';
+  fileDrop.classList.remove('has-file');
+  document.getElementById('fileLabel').innerHTML = 'ここにドラッグ＆ドロップ、または<strong>クリックして選択</strong>';
+  calcBtn.disabled = true;
+  document.getElementById('results').classList.remove('visible');
+  hideError();
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+
+function hideError() {
+  document.getElementById('errorMsg').classList.remove('visible');
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+
+</body>
+</html>
