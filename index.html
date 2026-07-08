@@ -368,7 +368,7 @@
 <div class="app-header">
   <div class="inner">
     <h1>SORATO UMIE 処遇改善加算アプリ</h1>
-    <p>国保連SK形式CSVから対象レコードを抽出・集計します</p>
+    <p>国保連SK形式CSVから対象レコードを抽出・集計します（加算Ⅰイ／Ⅰロ 自動判別対応）</p>
   </div>
 </div>
 
@@ -472,17 +472,26 @@
   </div>
 
   <div class="footer">
-    処遇改善加算Ⅰ 月次集計ツール — beatech株式会社 × SORATO UMIE
+    処遇改善加算Ⅰ（Ⅰイ・Ⅰロ対応）月次集計ツール — beatech株式会社 × SORATO UMIE
   </div>
 </div>
 
 <script>
 // === Configuration ===
+// 処遇改善加算のサービスコードは令和8年6月改定で変更された。
+//   〜2026年5月分: 加算Ⅰイ = 末尾5621 / 2026年6月分〜: 加算Ⅰロ = 末尾5639
+// どちらのコードも受け付け、検出した区分を結果に表示する(過去月のCSVもそのまま使える)。
 const CODE_CONFIG = {
-  '615621': { name: '児童発達支援', unit_price: 10.18, tag_class: 'tag-jihatsu', short: '児発' },
-  '635621': { name: '放課後等デイサービス', unit_price: 10.18, tag_class: 'tag-hodei', short: '放デイ' },
-  '645621': { name: '保育所等訪問支援', unit_price: 10.19, tag_class: 'tag-hohou', short: '保訪' },
+  // 加算Ⅰイ(〜2026年5月)
+  '615621': { name: '児童発達支援', unit_price: 10.18, tag_class: 'tag-jihatsu', short: '児発', kubun: 'Ⅰイ' },
+  '635621': { name: '放課後等デイサービス', unit_price: 10.18, tag_class: 'tag-hodei', short: '放デイ', kubun: 'Ⅰイ' },
+  '645621': { name: '保育所等訪問支援', unit_price: 10.19, tag_class: 'tag-hohou', short: '保訪', kubun: 'Ⅰイ' },
+  // 加算Ⅰロ(2026年6月〜・令和8年6月改定)
+  '615639': { name: '児童発達支援', unit_price: 10.18, tag_class: 'tag-jihatsu', short: '児発', kubun: 'Ⅰロ' },
+  '635639': { name: '放課後等デイサービス', unit_price: 10.18, tag_class: 'tag-hodei', short: '放デイ', kubun: 'Ⅰロ' },
+  '645639': { name: '保育所等訪問支援', unit_price: 10.19, tag_class: 'tag-hohou', short: '保訪', kubun: 'Ⅰロ' },
 };
+const TARGET_SUFFIXES = ['5621', '5639'];
 
 let csvData = null;
 let resultRecords = [];
@@ -552,8 +561,8 @@ function calculate() {
 
     const serviceCode = (cols[8] || '').trim();
 
-    // Only codes ending with "5621"
-    if (!serviceCode.endsWith('5621')) continue;
+    // 処遇改善加算のコード(Ⅰイ=5621 / Ⅰロ=5639)のみ対象
+    if (!TARGET_SUFFIXES.some(sfx => serviceCode.endsWith(sfx))) continue;
 
     const config = CODE_CONFIG[serviceCode];
     if (!config) continue;
@@ -570,6 +579,7 @@ function calculate() {
       typeName: config.name,
       shortName: config.short,
       tagClass: config.tag_class,
+      kubun: config.kubun,
       units: units,
       yen: yen,
     });
@@ -636,9 +646,18 @@ function renderResults() {
   const grandTotalYen = Object.values(categories).reduce((s, c) => s + c.totalYen, 0);
   const grandTotalUnits = Object.values(categories).reduce((s, c) => s + c.totalUnits, 0);
 
+  // 検出された加算区分(通常は単一。月をまたいだCSVなどで混在し得る)
+  const kubunList = [...new Set(resultRecords.map(r => r.kubun))];
+  const kubunLabel = kubunList.join(' + ');
+
   // Summary grid
   const summaryGrid = document.getElementById('summaryGrid');
   summaryGrid.innerHTML = `
+    <div class="summary-item">
+      <div class="label">加算区分</div>
+      <div class="value">${kubunLabel}</div>
+      <div class="sub">${kubunList.length > 1 ? '⚠ 複数の区分が混在しています' : (kubunLabel === 'Ⅰロ' ? '2026年6月〜の新区分' : '〜2026年5月の区分')}</div>
+    </div>
     <div class="summary-item">
       <div class="label">対象レコード数</div>
       <div class="value">${resultRecords.length.toLocaleString()}<span style="font-size:13px;font-weight:400;color:var(--text-sub);"> 件</span></div>
@@ -669,13 +688,13 @@ function renderResults() {
 
   // Category table
   const categoryBody = document.getElementById('categoryBody');
-  const codeOrder = ['615621', '635621', '645621'];
+  const codeOrder = ['615621', '635621', '645621', '615639', '635639', '645639'];
   let catHTML = '';
   for (const code of codeOrder) {
     const c = categories[code];
     if (!c) continue;
     catHTML += `<tr>
-      <td><span class="tag ${c.tagClass}">${c.name}</span></td>
+      <td><span class="tag ${c.tagClass}">${c.name}</span> <span style="font-size:11px;color:var(--text-sub);">${CODE_CONFIG[code].kubun}</span></td>
       <td class="mono">${code}</td>
       <td class="mono">${c.unitPrice.toFixed(2)}</td>
       <td class="text-right mono">${c.totalUnits.toLocaleString()}</td>
@@ -698,7 +717,7 @@ function renderResults() {
       <td class="mono" style="color:var(--text-muted);">${i + 1}</td>
       <td class="mono">${formatYearMonth(r.yearMonth)}</td>
       <td class="mono">${r.recipientNo}</td>
-      <td><span class="tag ${r.tagClass}">${r.shortName}</span></td>
+      <td><span class="tag ${r.tagClass}">${r.shortName}</span> <span style="font-size:11px;color:var(--text-sub);">${r.kubun}</span></td>
       <td class="mono">${r.serviceCode}</td>
       <td class="text-right mono">${r.units.toLocaleString()}</td>
       <td class="text-right mono">¥${r.yen.toLocaleString()}</td>
@@ -722,9 +741,9 @@ function formatYearMonth(ym) {
 function exportCSV() {
   if (resultRecords.length === 0) return;
 
-  let csv = '\ufeff対象年月,受給者番号,種別,サービスコード,単位数,円換算\n';
+  let csv = '\ufeff対象年月,受給者番号,種別,加算区分,サービスコード,単位数,円換算\n';
   for (const r of resultRecords) {
-    csv += `${r.yearMonth},${r.recipientNo},${r.typeName},${r.serviceCode},${r.units},${r.yen}\n`;
+    csv += `${r.yearMonth},${r.recipientNo},${r.typeName},${r.kubun},${r.serviceCode},${r.units},${r.yen}\n`;
   }
 
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
